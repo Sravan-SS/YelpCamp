@@ -67,7 +67,6 @@ router.put(
     const campground = await Campground.findByIdAndUpdate(id, {
       ...req.body.campground,
     });
-    console.log(campground);
     res.redirect(`/campgrounds/${campground._id}`);
   })
 );
