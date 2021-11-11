@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
 const methodOverride = require("method-override");
 const session = require("express-session");
+const flash = require("connect-flash");
 const path = require("path");
 const ExpressError = require("./utils/ExpressError");
 const campgrounds = require("./routes/campgrounds");
@@ -47,6 +48,14 @@ const sessionConfig = {
   // store:
 };
 app.use(session(sessionConfig));
+
+// flash
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
 
 // routes
 app.get("/", (req, res) => {
