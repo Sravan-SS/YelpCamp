@@ -23,6 +23,7 @@
         <a href="/login" class="nav-link">Login</a>
         <a href="/register" class="nav-link">Register</a>
         <% } else { %>
+        <span class="nav-link disabled">Hey <%= currentUser.username %>👋</span>
         <a href="/logout" class="nav-link">Logout</a>
         <% } %>
       </div>
