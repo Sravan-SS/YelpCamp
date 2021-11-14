@@ -4,10 +4,14 @@ const ejsMate = require("ejs-mate");
 const methodOverride = require("method-override");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const localStrategy = require("passport-local");
 const path = require("path");
 const ExpressError = require("./utils/ExpressError");
-const campgrounds = require("./routes/campgrounds");
-const reviews = require("./routes/reviews");
+const User = require("./models/user");
+const campgroundRoutes = require("./routes/campgrounds");
+const reviewRoutes = require("./routes/reviews");
+const userRoutes = require("./routes/users");
 const app = express();
 
 // mongoose connection
@@ -35,7 +39,7 @@ app.use(methodOverride("_method"));
 // public directory
 app.use(express.static(path.join(__dirname, "public")));
 
-// session
+// session (server side cookies)
 const sessionConfig = {
   secret: "thisshouldasecret",
   resave: false,
@@ -49,9 +53,19 @@ const sessionConfig = {
 };
 app.use(session(sessionConfig));
 
-// flash
+// passport (authentication)
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new localStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// flashing messages
 app.use(flash());
 app.use((req, res, next) => {
+  console.log(req.session);
+  res.locals.currentUser = req.user;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
@@ -62,8 +76,9 @@ app.get("/", (req, res) => {
   res.send("YYo");
 });
 
-app.use("/campgrounds", campgrounds);
-app.use("/campgrounds/:id/reviews", reviews);
+app.use("/", userRoutes);
+app.use("/campgrounds", campgroundRoutes);
+app.use("/campgrounds/:id/reviews", reviewRoutes);
 
 app.all("*", (req, res, next) => {
   next(new ExpressError("Page Not Found", 404));
