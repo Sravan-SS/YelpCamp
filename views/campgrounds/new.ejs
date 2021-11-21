@@ -7,6 +7,7 @@
       action="/campgrounds"
       method="POST"
       class="needs-validation"
+      enctype="multipart/form-data"
       novalidate
     >
       <div class="mb-3">
@@ -31,7 +32,7 @@
         />
         <div class="valid-feedback">Looks Good!!</div>
       </div>
-      <div class="mb-3">
+      <!-- <div class="mb-3">
         <label class="form-label" for="image">Image URL</label>
         <input
           class="form-control"
@@ -41,6 +42,21 @@
           required
         />
         <div class="valid-feedback">Looks Good!!</div>
+      </div> -->
+      <div class="input-group mb-3">
+        <label class="form-label" for="image">Upload Images</label>
+        <div class="input-group">
+          <input
+            type="file"
+            class="form-control"
+            name="image"
+            id="image"
+            multiple
+            required
+          />
+          <!-- <label class="input-group-text" for="image">Browse</label> -->
+          <div class="valid-feedback">Looks Good!!</div>
+        </div>
       </div>
       <div class="mb-3">
         <label for="price" class="form-label">Campground Price</label>
