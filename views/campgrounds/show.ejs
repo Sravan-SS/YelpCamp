@@ -1,6 +1,8 @@
 <% layout('layouts/boilerplate') %>
 <link rel="stylesheet" href="/stylesheets/stars.css" />
 
+
+
 <div class="row">
   <div class="col-6">
     <div
@@ -69,6 +71,7 @@
     </div>
   </div>
   <div class="col-6">
+    <div id='map' class="mb-4" style='width: 100%; height: 300px;'></div>
     <% if(currentUser) {%>
     <h2>Leave A Review</h2>
     <form
@@ -160,3 +163,10 @@
     <% } %>
   </div>
 </div>
+
+<script>
+  const mapToken = '<%- process.env.MAPBOX_TOKEN %>';
+  const campground = <%- JSON.stringify(campground) %>;
+</script>
+
+<script src="/javascripts/showPageMap.js"></script>
