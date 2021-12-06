@@ -10,6 +10,7 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const passport = require("passport");
 const localStrategy = require("passport-local");
+const mongoSanitize = require("express-mongo-sanitize");
 const path = require("path");
 const ExpressError = require("./utils/ExpressError");
 const User = require("./models/user");
@@ -42,6 +43,9 @@ app.use(methodOverride("_method"));
 
 // public directory
 app.use(express.static(path.join(__dirname, "public")));
+
+// mongo sanitize
+app.use(mongoSanitize());
 
 // session (server side cookies)
 const sessionConfig = {
@@ -77,7 +81,7 @@ app.use((req, res, next) => {
 
 // routes
 app.get("/", (req, res) => {
-  res.send("YYo");
+  res.render("home");
 });
 
 app.use("/", userRoutes);
