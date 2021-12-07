@@ -11,16 +11,22 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const localStrategy = require("passport-local");
 const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+const MongoStore = require("connect-mongo");
 const path = require("path");
 const ExpressError = require("./utils/ExpressError");
 const User = require("./models/user");
 const campgroundRoutes = require("./routes/campgrounds");
 const reviewRoutes = require("./routes/reviews");
 const userRoutes = require("./routes/users");
+const { CSPDirectives } = require("./CSP");
 const app = express();
+const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/yelp-camp";
 
-// mongoose connection
-mongoose.connect("mongodb://localhost:27017/yelp-camp", {
+const secret = process.env.SECRET || "thisshouldbeabettersecret!";
+
+// mongodb://localhost:27017/yelp-camp
+mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedtopology: true,
 });
@@ -28,6 +34,19 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "Connection Error"));
 db.once("open", () => {
   console.log("Database Connected");
+});
+
+// connect-mongo(MongoStore)
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  touchAfter: 24 * 60 * 60,
+  crypto: {
+    secret,
+  },
+});
+
+store.on("error", function (e) {
+  console.log("SESSION STORE ERROR", e);
 });
 
 // ejs
@@ -45,15 +64,27 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
 // mongo sanitize
+// *we can also replace characters instead of removing it completely
 app.use(mongoSanitize());
+
+// helmet
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: CSPDirectives,
+  })
+);
 
 // session (server side cookies)
 const sessionConfig = {
-  secret: "thisshouldasecret",
+  store, // store:store
+  name: "session",
+  secret,
   resave: false,
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
+    // *over https only
+    // secure: true,
     expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
     maxAge: 1000 * 60 * 60 * 24 * 7,
   },
